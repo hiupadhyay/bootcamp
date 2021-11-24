@@ -1,8 +1,6 @@
 from flask import Flask
 from flask import request
-import os
 import requests
-import json
 import pyjokes
 
 
@@ -12,6 +10,15 @@ app = Flask('bootcamp')
 
 # gets and prints TWILIO_ACCOUNT_SID value from .env file
 # print(os.getenv("TWILIO_ACCOUNT_SID"))
+main_menu="""Welcome Amigos,Reply with Option  
+  1) Joke
+  2) Weather
+  3) Cricket Score
+  4) Quote of the day
+  5) Current Location
+  6) Main Menu"""
+
+
 
 @app.route('/sms', methods=['GET', 'POST'])
 def sms():
@@ -19,18 +26,15 @@ def sms():
   if choice=="cricket":
     return resp("Score is 250 +")
   elif choice=="hi" or choice=="hello" or choice=="tere" or choice=="namaste" or choice=="ola":
-    return resp("""Welcome Amigos,Reply with Option  
-  1) Joke
-  2) Weather
-  3) Cricket Score
-  4) Quote of the day
-  5) Current Location""")
-  elif choice=="1":
-   return resp(fetchLocation())
+    return resp(main_menu)
   elif choice=="5":
+   return resp(fetchLocation())
+  elif choice=="1":
    return resp(fetchJoke())
   else:
-    return resp("Invalid Choice....")
+    return resp("""try again..
+  """+main_menu+"""
+    """)
     
 
 
