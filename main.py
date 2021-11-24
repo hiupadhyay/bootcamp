@@ -3,6 +3,8 @@ from flask import request
 import os
 import requests
 import json
+import pyjokes
+
 
 app = Flask('bootcamp')
 
@@ -16,15 +18,17 @@ def sms():
   choice = request.form.get('Body')
   if choice=="cricket":
     return resp("Score is 250 +")
-  elif choice=="hi" or choice=="hello" or choice=="tere":
-    return resp("""Welcome,Reply with Option  
+  elif choice=="hi" or choice=="hello" or choice=="tere" or choice=="namaste" or choice=="ola":
+    return resp("""Welcome Amigos,Reply with Option  
   1) Joke
   2) Weather
   3) Cricket Score
   4) Quote of the day
   5) Current Location""")
-  elif choice=="5":
+  elif choice=="1":
    return resp(fetchLocation())
+  elif choice=="5":
+   return resp(fetchJoke())
   else:
     return resp("Invalid Choice....")
     
@@ -41,6 +45,11 @@ def fetchLocation():
   response = response.json()
   print(response['iss_position'])
   return "latitude :"+response['iss_position']['latitude'] + " longitude: "+response['iss_position']['longitude']
+
+def fetchJoke():
+  return pyjokes.get_joke()
+
+  
 
 
 app.run(debug=True, host='0.0.0.0', port=8080)
