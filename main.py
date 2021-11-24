@@ -31,6 +31,8 @@ def sms():
    return resp(fetchLocation())
   elif choice=="1":
    return resp(fetchJoke())
+  elif choice=="6":
+   return resp(main_menu)
   else:
     return resp("""try again..
   """+main_menu+"""
