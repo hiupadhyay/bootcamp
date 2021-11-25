@@ -1,9 +1,11 @@
 from flask import Flask
 from flask import request
-import requests,json
+import requests
 import pyjokes
 from geopy.geocoders import Nominatim
-from bs4 import BeautifulSoup
+import geocoder
+import yfinance as yf
+
 
 app = Flask('bootcamp')
 
@@ -14,13 +16,11 @@ app = Flask('bootcamp')
 main_menu = """Welcome Amigos,Reply with Option  
   1) Joke
   2) Current Weather
-  3) Quote of the day
-  4) Current Location
+  3) Stock Prize
+  4) What is my Address
   5) Main Menu"""
-headers = {
-    'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-}
+
+stock_prize="Enter Ticker Symbol"
 
 
 @app.route('/sms', methods=['GET', 'POST'])
@@ -34,14 +34,19 @@ def sms():
         return resp(fetchLocation())
     elif choice == "1":
         return resp(fetchJoke())
+    elif choice == "3":
+        return resp(stock_prize)
     elif choice == "2":
         return resp(fetchWeather())
     elif choice == "5":
         return resp(main_menu)
     else:
-        return resp("""try again..
-  """ + main_menu + """
-    """)
+        if validTicker(choice)=="0":
+          return resp(stockprize(choice))
+        else:
+          return resp("""try again..
+        """ + main_menu + """
+         """)
 
 
 def resp(msg):
@@ -50,47 +55,50 @@ def resp(msg):
     <Message>""" + msg + """</Message>
   </Response>"""
 
+def validTicker(ticker):
+  try:
+    yf.Ticker(ticker)
+    return 0
+  except:
+    return 1
+
+
+def stockprize(ticker):
+   ticker = yf.Ticker(ticker).history(period='1d')
+   return str(ticker['Close'][0])
+
 
 def fetchLocation():
     response = requests.get("http://api.open-notify.org/iss-now.json")
     response = response.json()
-    print(response['iss_position'])
-    return "latitude :" + response['iss_position'][
-        'latitude'] + " longitude: " + response['iss_position']['longitude']
+    Latitude = response['iss_position']['latitude']
+    Longitude = response['iss_position']['longitude']
+    return  str(fetchAddress(
+        Latitude, Longitude))
 
 
 def fetchJoke():
     return pyjokes.get_joke()
 
 
-def fetchWeather():
+def fetchAddress(latitude, longitude):
     geolocator = Nominatim(user_agent="geoapiExercises")
     response = requests.get("http://api.open-notify.org/iss-now.json")
     response = response.json()
+    g = geocoder.ip('me')
+    print(g.latlng)
     Latitude = response['iss_position']['latitude']
     Longitude = response['iss_position']['longitude']
     print(Latitude + "," + Longitude)
     location = geolocator.reverse("59.43855209686544" + "," +
                                   "24.763826879144023")
+    print(location)
     address = location.raw['address']
-    city = address.get('city')
-    return weather(city)
-
-
-def weather(city):
-  BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
-  API_KEY="91b99c89ad821c042502bbe45675d759"
-  URL = BASE_URL + "q=" + city + "&appid=" + API_KEY
-  response = requests.get(URL)
-  main = response.json()['main']
-  temperature = main.get('temp')
-  print(temperature)
-  humidity = main.get('humidity')
-  pressure = main.get('pressure')
-  report = main.get('weather')
-  print(main)
-  return str(humidity)
-
+    pairs = address.items()
+    str=""
+    for key, value in pairs:
+      str=str+ " "+value+ "\n"
+    return str
 
 
 

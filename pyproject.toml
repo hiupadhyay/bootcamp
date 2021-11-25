@@ -10,6 +10,8 @@ flask = "^1.1.2"
 pyjokes = "^0.6.0"
 geopy = "^2.2.0"
 bs4 = "^0.0.1"
+geocoder = "^1.38.1"
+yfinance = "^0.1.67"
 
 [tool.poetry.dev-dependencies]
 
